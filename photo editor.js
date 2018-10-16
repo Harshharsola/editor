@@ -1,3 +1,4 @@
+//var div=createDiv('sidepane');
 var button;
 var button1;
 var button2;
@@ -9,6 +10,7 @@ var button7;
 var button8;
 var button9;
 var button10;
+var button11;
 var imgwidth;
 var imgheight;
 var slider;
@@ -16,10 +18,15 @@ var slider1;
 var counter=0;
 var input;
 var img;
-imgX=300;
+var cropimage=false;
+imgX=500;
 imgY=20;
+firstclickX=0;
+firstclickY=0;
+secondclickX=0;
+secondclickY=0;
 painting=false;
-var moveimage;
+moveimage=0;
 var current =[];
 var previous=[];
 
@@ -28,56 +35,93 @@ function setup() {
   background(255);
   loadPixels();
   slider=createSlider(-100, 100)
-  slider.position(40,180)
-  slider.style('width','80px')
+  slider.position(40,230+65)
+  slider.class('btn')
+
+  slider.style('width','125px')
   slider1=createSlider(-100, 100)
-  slider1.position(40,265)
-  slider1.style('width','80px')
-  button = createButton("change dimensions");
-  button.position(40, 80);
+  slider1.position(40,355+65)
+  slider1.class('btn')
+  slider1.style('width','125px')
+  button = createButton("Change Dimensions");
+  button.position(40, 80+65);
+  button.class('btn')
+  //button.class('fontcolor');
   button.mousePressed(change_dim1);
-  button1 = createButton("blue filter");
-  button1.position(40, 100);
+  button1 = createButton("Blue Filter");
+  button1.style('width','125px')
+  button1.position(40, 110+65);
   button1.mousePressed(blue_filter);
-  button2 = createButton("invert color");
-  button2.position(40, 160);
-  button2.mousePressed(invert_color);
-  button3 = createButton("change brightness");
-  button3.position(40, 205);
-  button3.mousePressed(change_brightness);
-  button4 = createButton("crop");
-  button4.position(40, 225);
-  button4.mousePressed(crop_image);
-  button5 = createButton("red filter");
-  button5.position(40, 120);
+  button1.class('btn');
+  button5 = createButton("Red Filter");
+  button5.position(40, 140+65);
+  button5.style('width','125px')
   button5.mousePressed(red_filter);
-  button6 = createButton("green filter");
-  button6.position(40, 140);
+  button5.class('btn')
+  button6 = createButton("Green Filter");
+  button6.position(40, 170+65);
+  button6.style('width','125px')
+  button6.class('btn')
   button6.mousePressed(green_filter);
-  button7 = createButton("grey scale");
-  button7.position(40, 245);
+  button2 = createButton("Invert Color");
+  button2.position(40, 200+65);
+  button2.style('width','125px')
+  button2.class('btn')
+  button2.mousePressed(invert_color);
+  button3 = createButton("Change Brightness");
+  button3.position(40, 265+65);
+  button3.style('width','125px')
+  button3.class('btn')
+  button3.mousePressed(change_brightness);
+  button4 = createButton("Crop");
+  button4.position(40, 295+65);
+  button4.style('width','125px')
+  button4.class('btn')
+  button4.mousePressed(crop_image);
+  button7 = createButton("Grey Scale");
+  button7.position(40, 325+65);
+  button7.style('width','125px')
+  button7.class('btn')
   button7.mousePressed(greyscale);
-  button9 = createButton("change contrast");
-  button9.position(40, 290);
+  button9 = createButton("Change Contrast");
+  button9.position(40, 390+65);
+  button9.style('width','125px')
+  button9.class('btn')
   button9.mousePressed(change_contrast);
-  button10 = createButton("draw on image");
-  button10.position(40, 310);
+  button10 = createButton("Draw On Image");
+  button10.position(40, 420+65);
+  button10.style('width','125px')
+  button10.class('btn')
   button10.mousePressed(drawing);
-  button11 = createButton("flip image");
-  button11.position(40, 330);
+  button11 = createButton("Flip Image");
+  button11.position(40, 450+65);
+  button11.style('width','125px')
+  button11.class('btn')
   button11.mousePressed(flip_image);
+  button12 = createButton("Move Image");
+  button12.position(40, 480+65);
+  button12.style('width','125px')
+  button12.class('btn')
+  button12.mousePressed(move2);
   input = createFileInput(handleFile);
-  input.position(40, 20);
-  inp1 = createInput("height");
-  inp2 = createInput("width");
-  inp1.position(40, 40);
-  inp2.position(40, 60);
+  input.position(30, 15);
+  input.style('width','125px')
+  input.class('btn')
+  inp1 = createInput("Height");
+  inp1.style('width','125px')
+  inp2 = createInput("Width");
+  inp2.style('width','125px')
+  inp1.position(40, 50);
+  inp1.class('btn fontcolor')
+  inp2.position(inp1.x, 100);
+  inp2.class('btn fontcolor')
 }
 function change_dim1() {
   background(255);
   imgheight = inp1.value();
   imgwidth = inp2.value();
-  redraw();
+  draw_image(imgX, imgY, imgwidth, imgheight);
+  //redraw();
 }
 window.onresize = function() {
   var w = window.innerWidth;
@@ -85,22 +129,27 @@ window.onresize = function() {
   canvas.size(w, h);
   width = w;
   height = h;
-};
-//Fix no file chosen bug
-
+}
 function draw() {
   if (img) {
-    img.loadPixels();
-    image(img, imgX, imgY, imgwidth, imgheight);
-    if (mouseIsPressed)
-    line(mouseX,mouseY,prevx,prevy);    
-    prevx=mouseX;
-    prevy=mouseY;
-    if(moveimage)
-    move();  
-    
-  }
-  
+    if (cropimage){
+      crop_image();
+    }
+    if(painting){
+      drawing()
+    }
+   
+}
+  //sconsole.log(moveimage)
+  if(moveimage==1)
+    move2();
+
+}
+function draw_image(imgX, imgY, imgwidth, imgheight)
+{
+
+  image(img, imgX, imgY, imgwidth, imgheight);
+
 }
 function handleFile(file) {
   print(file);
@@ -109,6 +158,7 @@ function handleFile(file) {
 
       imgwidth=img.width;
       imgheight=img.height;
+      draw_image(imgX, imgY, imgwidth, imgheight);
     });
 
     img.loadPixels();
@@ -124,7 +174,9 @@ function invert_color() {
       img.pixels[loc+2] = 255-img.pixels[loc+2]
     }
   }
-  img.updatePixels();// to update image pixels
+  img.updatePixels();
+  draw_image(imgX, imgY, imgwidth, imgheight);
+  // to update image pixels
 }
 function blue_filter() {
   img.loadPixels();
@@ -135,6 +187,7 @@ function blue_filter() {
     }
   }
 img.updatePixels();
+draw_image(imgX, imgY, imgwidth, imgheight);
 }
 function red_filter() {
   img.loadPixels();
@@ -145,6 +198,7 @@ function red_filter() {
     }
   }
 img.updatePixels();
+draw_image(imgX, imgY, imgwidth, imgheight);
 }
 function green_filter() {
   img.loadPixels();
@@ -155,6 +209,7 @@ function green_filter() {
     }
   }
 img.updatePixels();
+draw_image(imgX, imgY, imgwidth, imgheight);
 }
 function change_brightness(){
   img.loadPixels();
@@ -172,13 +227,13 @@ function change_brightness(){
       r=constrain(r, 0, 255);
       g=constrain(g,0,255);// to limit the value of variable in the range 0 to 255
       b=constrain(b,0,255);// color ki range is from 0-255
-      //c = color(r,g,b);
       img.pixels[loc] = r;
       img.pixels[loc+1] = g;
       img.pixels[loc+2] = b;
       img.pixels[loc+3] = 255;
     }
   }img.updatePixels()
+  draw_image(imgX, imgY, imgwidth, imgheight);
 }
 function greyscale(){
   img.loadPixels()
@@ -193,18 +248,24 @@ function greyscale(){
     }
   }
   img.updatePixels();
+  draw_image(imgX, imgY, imgwidth, imgheight);
 }
-function move(){
-    if (((mouseX>imgX)&&(mouseX<imgX+imgwidth))&&((mouseY>imgY)&&(mouseY<imgY+imgheight))){//to check of the position of the mouse if it is inside the image
-      if(mouseIsPressed){//mouseIsPressed function checks if mouse is pressed
-      moveimage=1;
-      background(255)    
-      imgX=mouseX-imgwidth/2;//center coordinate
-      imgY=mouseY-imgheight/2;
-    }
+function move2(){
+  if(painting)
+  painting=false
+  moveimage=1;
+  if (((mouseX>imgX)&&(mouseX<imgX+imgwidth))&&((mouseY>imgY)&&(mouseY<imgY+imgheight))){//to check of the position of the mouse if it is inside the image
+    if(mouseIsPressed){// mouseIsPressed function checks if mouse is pressed
+    moveimage=1;
+    background(255)    
+    imgX=mouseX-imgwidth/2;//center coordinate
+    imgY=mouseY-imgheight/2;
+    console.log(moveimage)
+    draw_image(imgX, imgY, imgwidth, imgheight);
+  
   }
 }
-
+}
 function change_contrast(){
   img.loadPixels();
   var val=slider1.value();
@@ -225,13 +286,37 @@ function change_contrast(){
         img.pixels[loc+2]+=val;
     }
   }img.updatePixels()
+  draw_image(imgX, imgY, imgwidth, imgheight);
 }
-
 function crop_image(){
-  //  cropped_image =img.get(350,40,50,50)
-  //  counter++;
+  cropimage=true;
+  if (((mouseX>imgX)&&(mouseX<imgX+imgwidth))&&((mouseY>imgY)&&(mouseY<imgY+imgheight))){
+    if (firstclickX==0){
+      if(mouseIsPressed){
+        firstclickX=mouseX;
+        firstclickY=mouseY;
+      }
+    }
+    if(firstclickX!=0&&firstclickY!=0){     
+      background(255);
+      draw_image(imgX, imgY, imgwidth, imgheight);
+      line(firstclickX,firstclickY,firstclickX,mouseY)
+      line(firstclickX,firstclickY,mouseX,firstclickY)
+      line(mouseX,firstclickY,mouseX,mouseY)
+      line(firstclickX,mouseY,mouseX,mouseY)
+    }
+    if(secondclickX==0&&firstclickX!=0){      
+      if(!mouseIsPressed){
+        console.log("SECOND CLICK");
+        secondclickX=mouseX;
+        secondclickY=mouseY;
+      }
+    }
+  }
+  if((firstclickX!=0&&firstclickY!=0)&&(secondclickX!=0&&secondclickY!=0))
+  image(img,imgX,imgY,imgwidth,imgheight,firstclickX-imgX,firstclickY-imgY,secondclickX-firstclickX,secondclickY-firstclickY);
+  
 }
-
 function flip_image(){
   img.loadPixels();
   var i =0;
@@ -247,34 +332,28 @@ function flip_image(){
       img.pixels[loc]=img.pixels[swaploc];
       img.pixels[loc+1]=img.pixels[swaploc+1];
       img.pixels[loc+2]=img.pixels[swaploc+2];
-      //img.pixels[imgwidth-loc]=img.pixels[loc-i%4];
-      //img.pixels[loc-i%4]=temp
-
       img.pixels[swaploc]=temp;
       img.pixels[swaploc+1]=temp1;
       img.pixels[swaploc+2]=temp2;
       i++
     }
   }img.updatePixels()
+  draw_image(imgX, imgY, imgwidth, imgheight);
 
   //Go left and right
 }
-
 function collage(){
-
 }
-
-function drawing(current,previous){
-  this.current1;
-  this.current2;
+function drawing(){
+  if (moveimage==1)
+  moveimage=0;
+  painting=true;
   if (((mouseX>imgX)&&(mouseX<imgX+imgwidth))&&((mouseY>imgY)&&(mouseY<imgY+imgheight))){
-  if(mouseIsPressed){
-    painting=true;
-    current1=mouseX;
-    current2=mouseY;
-    previous.x=current.x;
-    previous.y=current.y;
-  }
+  if(mouseIsPressed)
+    line(mouseX,mouseY,prevX,prevY);
+    prevX=mouseX;
+    prevY=mouseY
+  
 }
 
 }
