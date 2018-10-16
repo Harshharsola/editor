@@ -1,0 +1,27 @@
+@font-face{
+    font-family: montserrat;
+    src: url("../libraries/Montserrat-Regular.ttf")
+}
+.fontcolor{
+    color:black;
+    background-color:white;
+    font-family: montserrat;
+    border-block-start-color: black;
+    border-block-end-color: black;
+    border-right-color: black;
+    border-left-color: black;
+    
+}
+
+#sidepane{
+    background-color: grey;
+     width:10%; 
+     height: 100vh; 
+}
+
+#defaultCanvas0{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+}
